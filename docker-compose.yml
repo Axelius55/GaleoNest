@@ -1,0 +1,14 @@
+
+services:
+  db:
+    image: postgres:14.3
+    restart: always
+    ports:
+      - "5433:5432"          # puerto distinto en el host
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}   # variable distinta
+      POSTGRES_DB: ${DB_NAME}            # variable distinta
+    container_name: Galeo              # nombre de contenedor distinto
+    volumes:
+      - ./postgres2:/var/lib/postgresql/data  # volumen de datos distinto
