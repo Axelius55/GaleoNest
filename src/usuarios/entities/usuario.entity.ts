@@ -11,8 +11,8 @@ export class Usuario {
     @Column('text', { unique: true, nullable: false })
     correo: string;
 
-    @Column('text', { unique: true, nullable: false, select: false })
-    contraseña: string;
+    @Column('text', { unique: true, select: false })
+    contrasena: string;
 
     // UNO A UNO CON PRESUPUESTOS
 

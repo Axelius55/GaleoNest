@@ -13,6 +13,7 @@ export class CreateUsuarioDto {
     correo: string;
 
     @Transform(({ value }) => value.trim())
-    contraseña: string;
+    @IsString()
+    contrasena: string;
 
 }

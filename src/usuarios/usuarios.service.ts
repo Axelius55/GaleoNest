@@ -1,26 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Usuario } from './entities/usuario.entity';
+import { Repository } from 'typeorm';
+import { CommonService } from 'src/common/common.service';
 
 @Injectable()
 export class UsuariosService {
-  create(createUsuarioDto: CreateUsuarioDto) {
-    return 'This action adds a new usuario';
+  constructor(
+    @InjectRepository(Usuario)
+    private readonly usuarioRepository: Repository<Usuario>,
+    private readonly commonService: CommonService,
+  ) {}
+
+  async create(createUsuarioDto: CreateUsuarioDto) {
+    try {
+      return await this.usuarioRepository.save(createUsuarioDto);
+    } catch (error) {
+      this.commonService.handleDBExceptions(error);
+    }
   }
 
   findAll() {
-    return `This action returns all usuarios`;
+    return this.usuarioRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} usuario`;
+  async findOne(id: string) {
+    const usuario = await this.usuarioRepository.findOneBy({ id });
+    if (!usuario) {
+      throw new NotFoundException(`No se encontro el ${id}`);
+    }
+    return usuario;
   }
 
-  update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
-    return `This action updates a #${id} usuario`;
+  async update(id: string, updateUsuarioDto: UpdateUsuarioDto) {
+    const updateUsuario = await this.usuarioRepository.preload({
+      id,
+      ...updateUsuarioDto,
+    });
+    // si no existe, lanzar NotFound
+    if (!updateUsuario) {
+      throw new NotFoundException(`Usuario con id ${id} no encontrado`);
+    }
+    await this.usuarioRepository.save(updateUsuario);
+    return updateUsuario;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} usuario`;
+  async remove(id: string) {
+    const usuario = await this.findOne(id);
+    await this.usuarioRepository.remove(usuario);
+    return "Usuario eliminado";
   }
 }
