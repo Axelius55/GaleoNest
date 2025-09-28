@@ -9,6 +9,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true, //Remueve todo lo que no está incluido en los DTOs.
       forbidNonWhitelisted: true, //Retorna bad request si hay propiedades en el objeto no requeridas.
+      transform: true,
     }),
   );
   await app.listen(process.env.PORT ?? 3000);

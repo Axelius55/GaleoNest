@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsuariosModule } from './usuarios/usuarios.module';
+import { GastosModule } from './gastos/gastos.module';
+import { CategoriasModule } from './categorias/categorias.module';
+import { PresupuestosModule } from './presupuestos/presupuestos.module';
 
 
 @Module({
@@ -15,7 +19,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true,
       synchronize: true,
-    })
+    }),
+    UsuariosModule,
+    GastosModule,
+    CategoriasModule,
+    PresupuestosModule
   ],
   controllers: [],
   providers: [],
