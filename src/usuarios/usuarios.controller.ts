@@ -11,7 +11,7 @@ export class UsuariosController {
   create(@Body() createUsuarioDto: CreateUsuarioDto) {
     return this.usuariosService.create(createUsuarioDto);
   }
-
+  //TODO. poner paginacion
   @Get()
   findAll() {
     return this.usuariosService.findAll();
@@ -28,7 +28,7 @@ export class UsuariosController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.usuariosService.remove(id);
   }
 }

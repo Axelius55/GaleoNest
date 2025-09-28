@@ -17,8 +17,8 @@ export class Gasto {
     @Column('text', { nullable: true})
     descripcion?: string
 
-    // MUCHOS A UNO CON USUARIOS
+    //TODO: MUCHOS A UNO CON USUARIOS
 
 
-    // UNO A MUCHOS CON CATEGORÍAS
+    //TODO: UNO A MUCHOS CON CATEGORÍAS
 }

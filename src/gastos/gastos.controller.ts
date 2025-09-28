@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { GastosService } from './gastos.service';
 import { CreateGastoDto } from './dto/create-gasto.dto';
 import { UpdateGastoDto } from './dto/update-gasto.dto';
@@ -16,19 +16,19 @@ export class GastosController {
   findAll() {
     return this.gastosService.findAll();
   }
-
+  //TODO. poner paginación
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.gastosService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.gastosService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGastoDto: UpdateGastoDto) {
-    return this.gastosService.update(+id, updateGastoDto);
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateGastoDto: UpdateGastoDto) {
+    return this.gastosService.update(id, updateGastoDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.gastosService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.gastosService.remove(id);
   }
 }

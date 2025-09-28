@@ -14,8 +14,8 @@ export class Usuario {
     @Column('text', { unique: true, select: false })
     contrasena: string;
 
-    // UNO A UNO CON PRESUPUESTOS
+    //TODO: UNO A UNO CON PRESUPUESTOS
 
 
-    // UNO A MUCHOS CON GASTOS
+    //TODO: UNO A MUCHOS CON GASTOS
 }

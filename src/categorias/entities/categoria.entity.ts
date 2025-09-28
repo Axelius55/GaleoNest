@@ -8,5 +8,5 @@ export class Categoria {
     @Column({type: "text", nullable: false})
     nombreCategoria: string;
 
-    // UNO A MUCHOS CON GASTOS
+    //TODO: UNO A MUCHOS CON GASTOS
 }

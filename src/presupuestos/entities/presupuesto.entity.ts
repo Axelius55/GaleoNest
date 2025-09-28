@@ -7,4 +7,6 @@ export class Presupuesto {
 
     @Column({type: 'float', nullable: false})
     cantidad: number;
+
+    //TODO: UNO A UNO CON USUARIOS
 }

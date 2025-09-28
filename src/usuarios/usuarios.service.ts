@@ -26,6 +26,7 @@ export class UsuariosService {
     }
   }
 
+  //TODO: PONER PAGINACIÓN
   findAll() {
     return this.usuarioRepository.find();
   }
@@ -39,21 +40,25 @@ export class UsuariosService {
   }
 
   async update(id: string, updateUsuarioDto: UpdateUsuarioDto) {
+
     const updateUsuario = await this.usuarioRepository.preload({
       id,
       ...updateUsuarioDto,
     });
-    // si no existe, lanzar NotFound
+
     if (!updateUsuario) {
       throw new NotFoundException(`Usuario con id ${id} no encontrado`);
     }
+
     await this.usuarioRepository.save(updateUsuario);
+
     return updateUsuario;
+    
   }
 
   async remove(id: string) {
     const usuario = await this.findOne(id);
     await this.usuarioRepository.remove(usuario);
-    return "Usuario eliminado";
+    return 'Usuario eliminado';
   }
 }

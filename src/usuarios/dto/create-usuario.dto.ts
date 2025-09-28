@@ -5,6 +5,7 @@ export class CreateUsuarioDto {
 
     @IsString()
     @MinLength(1)
+    @Transform(({ value }) => value.trim())
     nombre: string;
 
     @IsString()
