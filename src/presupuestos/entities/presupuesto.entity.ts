@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Usuario } from "src/usuarios/entities/usuario.entity";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Presupuesto {
@@ -9,4 +10,8 @@ export class Presupuesto {
     cantidad: number;
 
     //TODO: UNO A UNO CON USUARIOS
-}
+    @OneToOne(() => Usuario)
+    @JoinColumn({ name: "UsuarioID" })
+    usuario: Usuario;
+
+}  

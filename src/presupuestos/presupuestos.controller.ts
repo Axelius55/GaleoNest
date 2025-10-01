@@ -19,16 +19,16 @@ export class PresupuestosController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.presupuestosService.findOne(+id);
+    return this.presupuestosService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePresupuestoDto: UpdatePresupuestoDto) {
-    return this.presupuestosService.update(+id, updatePresupuestoDto);
+    return this.presupuestosService.update(id, updatePresupuestoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.presupuestosService.remove(+id);
+    return this.presupuestosService.remove(id);
   }
 }
