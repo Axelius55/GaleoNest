@@ -9,7 +9,7 @@ export class Categoria {
     @Column({type: "text", nullable: false})
     nombreCategoria: string;
 
-    //TODO: UNO A MUCHOS CON GASTOS
-    @OneToMany(() => Gasto, (gasto) => gasto.categoriaID)
+
+    @OneToMany(() => Gasto, (gasto) => gasto.categoria)
     gasto: Gasto[];
 }

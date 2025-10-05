@@ -19,13 +19,18 @@ export class Gasto {
     @Column('text', { nullable: true})
     descripcion?: string
 
-    //TODO: MUCHOS A UNO CON USUARIOS
-    @ManyToOne(() => Usuario, (usuario) => usuario.gasto)
+    @ManyToOne(() => Usuario, (usuario) => usuario.gasto,{
+        eager: true,
+        onDelete: 'CASCADE',
+    })
     @JoinColumn({name: "UsuarioID"})
-    usuarioID: Usuario;
+    usuario: Usuario;
 
-    //TODO: UNO A MUCHOS CON CATEGORÍAS
-    @ManyToOne(() => Categoria, (categoria) => categoria.gasto)
+    @ManyToOne(() => Categoria, (categoria) => categoria.gasto, {
+        nullable: true,
+        onDelete: 'SET NULL',
+        eager: true,
+    })
     @JoinColumn({name: "CategoriaID"})
-    categoriaID: Categoria;
+    categoria: Categoria;
 }

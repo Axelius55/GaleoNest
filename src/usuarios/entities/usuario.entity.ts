@@ -1,3 +1,4 @@
+import { Role } from "src/common/enums/rol.enum";
 import { Gasto } from "src/gastos/entities/gasto.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -15,8 +16,13 @@ export class Usuario {
     @Column('text', { unique: true, select: false })
     contrasena: string;
 
-    //TODO: UNO A MUCHOS CON GASTOS
-    @OneToMany(() => Gasto, (gasto) => gasto.usuarioID )
+    @OneToMany(() => Gasto, (gasto) => gasto.usuario,)
     gasto: Gasto[];
+
+    @Column({type: 'float'})
+    presupuesto?: number;
+
+    @Column({ type: 'enum', default: Role.USER, enum: Role })
+    rol: string;
 
 }

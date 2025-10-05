@@ -1,4 +1,4 @@
-import { IsDate, IsDateString, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
+import { IsDate, IsDateString, IsNumber, IsOptional, IsPositive, IsString, IsUUID, MinLength } from "class-validator";
 
 export class CreateGastoDto {
   @IsString()
@@ -25,4 +25,9 @@ export class CreateGastoDto {
   @IsString()
   @IsOptional()
   descripcion?: string;
+
+  @IsUUID()
+  usuarioID: string;    // referencia
+  @IsUUID()
+  categoriaID: string;  // referencia
 }

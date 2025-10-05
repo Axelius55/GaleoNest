@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { GastosModule } from './gastos/gastos.module';
 import { CategoriasModule } from './categorias/categorias.module';
-import { PresupuestosModule } from './presupuestos/presupuestos.module';
 
 
 @Module({
@@ -20,10 +19,10 @@ import { PresupuestosModule } from './presupuestos/presupuestos.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    
     UsuariosModule,
     GastosModule,
     CategoriasModule,
-    PresupuestosModule
   ],
   controllers: [],
   providers: [],

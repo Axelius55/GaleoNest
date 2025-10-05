@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsEmail, IsString, MaxLength, MinLength } from "class-validator";
+import { IsEmail, IsNumber, IsPositive, IsString, MaxLength, MinLength } from "class-validator";
 
 export class CreateUsuarioDto {
 
@@ -17,4 +17,7 @@ export class CreateUsuarioDto {
     @IsString()
     contrasena: string;
 
+    @IsNumber({maxDecimalPlaces: 3})
+    @IsPositive()
+    presupuesto?: number;
 }
