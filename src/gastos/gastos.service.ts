@@ -60,10 +60,17 @@ export class GastosService {
   }
 
   async update(id: string, updateGastoDto: UpdateGastoDto) {
-  const gasto = await this.gastoRepository.findOne({
+/*   const gasto = await this.gastoRepository.findOne({
     where: { id },
     relations: ['categoria'], // solo cargamos la categoría si se va a actualizar
-  });
+  }); */
+
+  const {usuarioID, ...toUpdate} = updateGastoDto;
+
+  const gasto = await this.gastoRepository.preload({
+    ...toUpdate,
+    id,
+  })
 
   if (!gasto) throw new NotFoundException(`Gasto con id ${id} no encontrado`);
 
@@ -73,7 +80,6 @@ export class GastosService {
     if (!categoria) throw new NotFoundException('Categoría no encontrada');
     gasto.categoria = categoria;
   }
-
   return await this.gastoRepository.save(gasto);
 }
 

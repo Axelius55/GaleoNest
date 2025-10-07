@@ -13,7 +13,7 @@ export class Usuario {
     @Column('text', { unique: true, nullable: false })
     correo: string;
 
-    @Column('text', { unique: true, select: false })
+    @Column('text', { select: false })
     contrasena: string;
 
     @OneToMany(() => Gasto, (gasto) => gasto.usuario,)
