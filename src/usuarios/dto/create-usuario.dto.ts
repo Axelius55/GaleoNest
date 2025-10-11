@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsEmail, IsNumber, IsPositive, IsString, MaxLength, MinLength } from "class-validator";
+import { IsArray, IsEmail, IsNumber, IsOptional, IsPositive, IsString, MaxLength, MinLength } from "class-validator";
 
 export class CreateUsuarioDto {
     @ApiProperty({ example: 'Juan Perez', description: 'Nombre completo del usuario', minLength: 1})
@@ -26,4 +26,8 @@ export class CreateUsuarioDto {
     @IsNumber({maxDecimalPlaces: 3})
     @IsPositive()
     presupuesto?: number;
+
+    @IsString({each: true})
+    @IsOptional()
+    images?: string[];
 }

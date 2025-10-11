@@ -25,4 +25,7 @@ export class Usuario {
     @Column({ type: 'enum', default: Role.USER, enum: Role })
     rol: string;
 
+    @Column('text', {nullable: true})
+    urlImage: string;
+
 }

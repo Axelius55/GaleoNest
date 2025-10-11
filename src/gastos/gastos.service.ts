@@ -23,6 +23,8 @@ export class GastosService {
     private readonly commonService: CommonService,
   ) {}
 
+  
+
   async create(createGastoDto: CreateGastoDto) {
       const usuario = await this.usuarioRepository.findOneBy({
         id: createGastoDto.usuarioID,
