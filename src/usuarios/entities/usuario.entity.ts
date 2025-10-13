@@ -19,7 +19,7 @@ export class Usuario {
     @OneToMany(() => Gasto, (gasto) => gasto.usuario,)
     gasto: Gasto[];
 
-    @Column({type: 'float'})
+    @Column({type: 'float', nullable: true})
     presupuesto?: number;
 
     @Column({ type: 'enum', default: Role.USER, enum: Role })

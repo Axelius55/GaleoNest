@@ -92,4 +92,11 @@ export class UsuariosService {
     await this.usuarioRepository.remove(usuario);
     return 'Usuario eliminado';
   }
+
+  async findOneByEmail(correo: string){
+    return await this.usuarioRepository.findOne({
+      where: {correo},
+      select: ['id', 'correo', 'contrasena']
+    });
+  }
 }
