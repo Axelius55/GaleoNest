@@ -13,25 +13,29 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
-  BadRequestException,
 } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
-import { CreateUsuarioDto } from './dto/create-usuario.dto';
+// import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from './entities/helpers/fileFilter.helper';
 import { memoryStorage } from 'multer';
 import { Response } from 'express';
+import { Auth } from '../common/decorators/auth.decoratot';
+import { Role } from '../common/enums/rol.enum';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 
+@Auth(Role.ADMIN)
+@ApiBearerAuth()
 @Controller('usuarios')
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo usuario' })
-  create(@Body() createUsuarioDto: CreateUsuarioDto) {
-    return this.usuariosService.create(createUsuarioDto);
+  create(@Body() registerDto: RegisterDto) {
+    return this.usuariosService.create(registerDto);
   }
   //TODO. poner paginacion
   @Get()

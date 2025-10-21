@@ -16,7 +16,7 @@ export class Usuario {
     @Column('text', { select: false })
     contrasena: string;
 
-    @OneToMany(() => Gasto, (gasto) => gasto.usuario,)
+    @OneToMany(() => Gasto, (gasto) => gasto.user,)
     gasto: Gasto[];
 
     @Column({type: 'float', nullable: true})

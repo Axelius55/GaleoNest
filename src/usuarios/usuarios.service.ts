@@ -13,6 +13,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { v4 as uuid } from 'uuid';
 import { ConfigService } from '@nestjs/config';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 
 @Injectable()
 export class UsuariosService {
@@ -23,9 +24,9 @@ export class UsuariosService {
     private readonly configService: ConfigService
   ) {}
 
-  async create(createUsuarioDto: CreateUsuarioDto) {
+  async create(registerDto: RegisterDto) {
     try {
-      return await this.usuarioRepository.save(createUsuarioDto);
+      return await this.usuarioRepository.save(registerDto);
     } catch (error) {
       this.commonService.handleDBExceptions(error);
     }
@@ -93,10 +94,16 @@ export class UsuariosService {
     return 'Usuario eliminado';
   }
 
-  async findOneByEmail(correo: string){
+  async findOneByEmailWhithPassword(correo: string){
     return await this.usuarioRepository.findOne({
       where: {correo},
-      select: ['id', 'correo', 'contrasena']
+      select: ['id', 'correo','contrasena','rol','nombre']
     });
   }
+
+  async findOneByEmail(correo: string){
+    return await this.usuarioRepository.findOneBy({correo})
+  }
+
+  
 }

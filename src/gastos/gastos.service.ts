@@ -1,3 +1,4 @@
+import { UserActiveInterface } from './../common/interface/user-active.interface';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateGastoDto } from './dto/create-gasto.dto';
 import { UpdateGastoDto } from './dto/update-gasto.dto';
@@ -25,68 +26,82 @@ export class GastosService {
 
   
 
-  async create(createGastoDto: CreateGastoDto) {
-      const usuario = await this.usuarioRepository.findOneBy({
-        id: createGastoDto.usuarioID,
-      });
-      if (!usuario) throw new NotFoundException('Usuario no encontrado');
+  async create(createGastoDto: CreateGastoDto, user: UserActiveInterface) {
+    const categoria = await this.categoriaRepository.findOneBy({
+      id: createGastoDto.categoriaID,
+    });
 
-      const categoria = await this.categoriaRepository.findOneBy({
-        id: createGastoDto.categoriaID,
-      });
-      if (!categoria) throw new NotFoundException('Categoría no encontrada');
+    if (!categoria) {
+      throw new NotFoundException('Categoría no encontrada');
+    }
 
-      const gasto = this.gastoRepository.create({
-        nombreGasto: createGastoDto.nombreGasto,
-        monto: createGastoDto.monto,
-        fechaGasto: createGastoDto.fechaGasto,
-        descripcion: createGastoDto.descripcion,
-        usuario, // entidad completa
-        categoria // entidad completa
-      });
+    const gasto = this.gastoRepository.create({
+      nombreGasto: createGastoDto.nombreGasto,
+      monto: createGastoDto.monto,
+      fechaGasto: createGastoDto.fechaGasto,
+      descripcion: createGastoDto.descripcion,
+      user: { id: user.id } as Usuario,
+      categoria
+    });
 
-      return await this.gastoRepository.save(gasto);
-
+    return await this.gastoRepository.save(gasto);
   }
   //TODO: poner paginación
-  findAll() {
-    return this.gastoRepository.find();
+  findAll(user: UserActiveInterface) {
+    return this.gastoRepository.find({
+      where: {user: {id: user.id}},
+      relations: ['categoria']
+    });
   }
 
-  async findOne(id: string) {
-    const gasto = await this.gastoRepository.findOneBy({ id });
+  async findOne(id: string, user: UserActiveInterface) {
+    const gasto = await this.gastoRepository.findOne({
+      where: { id, user: { id: user.id } },
+      relations: ['categoria']
+    });
     if (!gasto) {
       throw new NotFoundException(`No se encontro el id: ${id}`);
     }
     return gasto;
   }
 
-  async update(id: string, updateGastoDto: UpdateGastoDto) {
+  async update(id: string, updateGastoDto: UpdateGastoDto,user: UserActiveInterface) {
 /*   const gasto = await this.gastoRepository.findOne({
     where: { id },
     relations: ['categoria'], // solo cargamos la categoría si se va a actualizar
   }); */
+  const gastoExistente = await this.findOne(id, user)
 
-  const {usuarioID, ...toUpdate} = updateGastoDto;
+  const {categoriaID, ...toUpdate} = updateGastoDto;
 
-  const gasto = await this.gastoRepository.preload({
+  let gasto = await this.gastoRepository.preload({
+    id: gastoExistente.id,
     ...toUpdate,
-    id,
   })
 
-  if (!gasto) throw new NotFoundException(`Gasto con id ${id} no encontrado`);
+  if(!gasto){
+    gasto = gastoExistente
+  }
 
-  // Actualizamos la categoría solo si se manda
-  if (updateGastoDto.categoriaID) {
-    const categoria = await this.categoriaRepository.findOneBy({ id: updateGastoDto.categoriaID });
-    if (!categoria) throw new NotFoundException('Categoría no encontrada');
+  if(categoriaID){
+    const categoria = await this.categoriaRepository.findOneBy({id: categoriaID});
+    if(!categoria) throw new NotFoundException('Categoria no encontrada');
     gasto.categoria = categoria;
   }
+
+  // if (!gasto) throw new NotFoundException(`Gasto con id ${id} no encontrado`);
+
+  // // Actualizamos la categoría solo si se manda
+  // if (updateGastoDto.categoriaID) {
+  //   const categoria = await this.categoriaRepository.findOneBy({ id: updateGastoDto.categoriaID });
+  //   if (!categoria) throw new NotFoundException('Categoría no encontrada');
+  //   gasto.categoria = categoria;
+  // }
   return await this.gastoRepository.save(gasto);
 }
 
-  async remove(id: string) {
-    const gasto = await this.findOne(id);
+  async remove(id: string, user: UserActiveInterface) {
+    const gasto = await this.findOne(id, user);
     await this.gastoRepository.remove(gasto);
     return 'Gasto eliminado';
   }
