@@ -8,6 +8,7 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcryptjs from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UserActiveInterface } from 'src/common/interface/user-active.interface';
 
 @Injectable()
 export class AuthService {
@@ -27,23 +28,25 @@ export class AuthService {
 
     const hashedPassword = await bcryptjs.hash(registerDto.contrasena, 10);
 
-    await this.usuariosService.create({
-      nombre: registerDto.nombre,
-      correo: registerDto.correo,
+    const usuarioCreado = await this.usuariosService.create({
+      ...registerDto,
       contrasena: hashedPassword,
-      presupuesto: registerDto.presupuesto,
     });
 
     return {
-      message: 'Usuario creado con exito',
+      id: usuarioCreado?.id,
+      nombre: registerDto.nombre,
+      correo: registerDto.correo,
+      presupuesto: registerDto.presupuesto,
     };
   }
 
   async login({ correo, contrasena }: LoginDto) {
-    const usuario = await this.usuariosService.findOneByEmailWhithPassword(correo);
+    const usuario =
+      await this.usuariosService.findOneByEmailWhithPassword(correo);
 
     if (!usuario) {
-      throw new UnauthorizedException('Correo Incorrecto');
+      throw new UnauthorizedException('No existe usuario');
     }
 
     const isPasswordValid = await bcryptjs.compare(
@@ -55,7 +58,11 @@ export class AuthService {
       throw new UnauthorizedException('Contasena incorrecta');
     }
 
-    const payload = { correo: usuario.correo, rol: usuario.rol, sub: usuario.id};
+    const payload = {
+      email: usuario.correo,
+      rol: usuario.rol,
+      sub: usuario.id,
+    };
 
     const token = await this.jwtService.signAsync(payload);
 
@@ -65,14 +72,7 @@ export class AuthService {
     };
   }
 
-  async profile({email, rol}: {email: string, rol: string}){
-
-    // if(rol !=='admin'){
-    //   throw new UnauthorizedException('No estas autorizado para acceder a esre recurso')
-    // }
-
-    return await this.usuariosService.findOneByEmail(email)
+  async profile(user: UserActiveInterface) {
+    return await this.usuariosService.findOneByEmail(user.email);
   }
-
-  
 }

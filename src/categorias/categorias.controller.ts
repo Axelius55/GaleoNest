@@ -11,7 +11,7 @@ import { CategoriasService } from './categorias.service';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
 import { ApiOperation } from '@nestjs/swagger';
-import { Auth } from 'src/common/decorators/auth.decoratot';
+import { Auth } from 'src/common/decorators/auth.decorator';
 import { Role } from 'src/common/enums/rol.enum';
 
 @Controller('categorias')

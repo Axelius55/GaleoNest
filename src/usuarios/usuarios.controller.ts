@@ -22,12 +22,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from './helpers/fileFilter.helper';
 import { memoryStorage } from 'multer';
 import { Response } from 'express';
-import { Auth } from '../common/decorators/auth.decoratot';
+import { Auth } from '../common/decorators/auth.decorator';
 import { Role } from '../common/enums/rol.enum';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
 import { UserActiveInterface } from 'src/common/interface/user-active.interface';
-
 
 @ApiBearerAuth()
 @Controller('usuarios')
@@ -40,7 +39,7 @@ export class UsuariosController {
   create(@Body() registerDto: RegisterDto) {
     return this.usuariosService.create(registerDto);
   }
-  //TODO. poner paginacion
+
   @Auth(Role.ADMIN)
   @Get()
   @ApiOperation({
@@ -52,9 +51,12 @@ export class UsuariosController {
 
   @Auth(Role.USER)
   @Get('photo/:imageName')
-  findOneImage(@Res() res: Response, @Param('imageName') imageName: string) {
-    const path = this.usuariosService.getStaticProductImage(imageName);
-
+  async findOneImage(
+    @Res() res: Response, 
+    @Param('imageName') imageName: string, 
+    @ActiveUser() user: UserActiveInterface
+  ) {
+    const path = await this.usuariosService.getStaticUserImage(imageName, user);
     res.sendFile(path);
   }
 
@@ -76,8 +78,9 @@ export class UsuariosController {
       }),
     )
     file: Express.Multer.File,
+    @ActiveUser() user: UserActiveInterface  // ← Agregar esto
   ) {
-    return this.usuariosService.saveFile(file);
+    return this.usuariosService.saveFile(file, user);  // ← Pasar el usuario
   }
 
   @Auth(Role.USER)
@@ -85,8 +88,11 @@ export class UsuariosController {
   @ApiOperation({
     summary: 'Obtener un usuario por su ID, llegará tambien con sus gastos',
   })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usuariosService.findOne(id);
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    return this.usuariosService.findOne(id, user);
   }
 
   @Auth(Role.USER)
@@ -95,7 +101,7 @@ export class UsuariosController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUsuarioDto: UpdateUsuarioDto,
-    @ActiveUser() user: UserActiveInterface
+    @ActiveUser() user: UserActiveInterface,
   ) {
     return this.usuariosService.update(id, updateUsuarioDto, user);
   }
@@ -105,7 +111,7 @@ export class UsuariosController {
   @ApiOperation({
     summary: 'Eliminar un usuario por su ID, se eliminarán también sus gastos',
   })
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usuariosService.remove(id);
+  remove(@Param('id', ParseUUIDPipe) id: string, @ActiveUser() user: UserActiveInterface) {
+    return this.usuariosService.remove(id, user);
   }
 }

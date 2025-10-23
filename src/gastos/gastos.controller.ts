@@ -3,7 +3,7 @@ import { GastosService } from './gastos.service';
 import { CreateGastoDto } from './dto/create-gasto.dto';
 import { UpdateGastoDto } from './dto/update-gasto.dto';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { Auth } from 'src/common/decorators/auth.decoratot';
+import { Auth } from 'src/common/decorators/auth.decorator';
 import { Role } from 'src/common/enums/rol.enum';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
 import { UserActiveInterface } from 'src/common/interface/user-active.interface';

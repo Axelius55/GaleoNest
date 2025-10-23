@@ -25,12 +25,13 @@ export class UsuariosService {
     @InjectRepository(Usuario)
     private readonly usuarioRepository: Repository<Usuario>,
     private readonly commonService: CommonService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async create(registerDto: RegisterDto) {
     try {
-      return await this.usuarioRepository.save(registerDto);
+      const usuarioGuardado = await this.usuarioRepository.save(registerDto);
+      return usuarioGuardado;
     } catch (error) {
       this.commonService.handleDBExceptions(error);
     }
@@ -50,23 +51,38 @@ export class UsuariosService {
     if (!usuario) {
       throw new NotFoundException(`Usuario con id ${id} no encontrado`);
     }
+    if (usuario.urlImage) {
+      const usuarioConImagen = {
+        ...usuario,
+        urlImageCompleta: `${this.configService.get('HOST_API')}/usuarios/photo/${usuario.urlImage}`,
+      };
+      return usuarioConImagen;
+    }
+
     return usuario;
   }
 
-  async update(id: string, updateUsuarioDto: UpdateUsuarioDto, user: UserActiveInterface) {
+  async update(
+    id: string,
+    updateUsuarioDto: UpdateUsuarioDto,
+    user: UserActiveInterface,
+  ) {
     if (user.rol !== Role.ADMIN && user.id !== id) {
       throw new ForbiddenException('Solo puedes actualizar tus propios datos');
     }
 
     if (updateUsuarioDto.contrasena) {
-      updateUsuarioDto.contrasena = await bcryptjs.hash(updateUsuarioDto.contrasena, 10);
+      updateUsuarioDto.contrasena = await bcryptjs.hash(
+        updateUsuarioDto.contrasena,
+        10,
+      );
     }
 
     if (updateUsuarioDto.correo) {
       const existingUser = await this.usuarioRepository.findOne({
-        where: { correo: updateUsuarioDto.correo }
+        where: { correo: updateUsuarioDto.correo },
       });
-      
+
       if (existingUser && existingUser.id !== id) {
         throw new BadRequestException('El correo ya está en uso');
       }
@@ -87,48 +103,74 @@ export class UsuariosService {
     return usuarioSinPassword;
   }
 
-  getStaticProductImage(imageName: string) {
-    
-    const path = join(__dirname, '../../static/uploads', imageName)
-
-    if(!existsSync(path)){
-        throw new BadRequestException(`No product found with image: ${imageName}`)
+  async getStaticUserImage(imageName: string, user: UserActiveInterface) {
+    // ADMIN puede ver cualquier imagen
+    if (user.rol === Role.ADMIN) {
+      const path = join(__dirname, '../../static/uploads', imageName);
+      if (!existsSync(path)) {
+        throw new BadRequestException(`No se encontró la imagen: ${imageName}`);
+      }
+      return path;
     }
-    return path;
 
+    // USER debe verificar que la imagen le pertenece
+    const usuario = await this.usuarioRepository.findOne({
+      where: { id: user.id, urlImage: imageName },
+    });
+
+    if (!usuario) {
+      throw new ForbiddenException('No tienes permiso para ver esta imagen');
+    }
+
+    const path = join(__dirname, '../../static/uploads', imageName);
+    if (!existsSync(path)) {
+      throw new BadRequestException(`No se encontró la imagen: ${imageName}`);
+    }
+
+    return path;
   }
 
-  saveFile(file: Express.Multer.File) {
+  async saveFile(file: Express.Multer.File, user: UserActiveInterface) {
     const fs = require('fs');
     const path = require('path');
 
-    const ext = file.mimetype.split('/')[1]; // 'jpeg', 'png', etc.
-    const fileName = `${uuid()}.${ext}`; // uuid + extensión
-    const uploadPath = path.join('./static/uploads', fileName); // Ruta completa
+    const ext = file.mimetype.split('/')[1];
+    const fileName = `${uuid()}.${ext}`;
+    const uploadPath = path.join('./static/uploads', fileName);
 
     // Escribe el archivo
     fs.writeFileSync(uploadPath, file.buffer);
+
+    // Actualizar el campo urlImage del usuario
+    await this.usuarioRepository.update(user.id, {
+      urlImage: fileName,
+    });
+
     // Retorna la URL segura
-    const secureUrl = `${this.configService.get('HOST_API')}/usuarios/photo/${fileName}`
-    return secureUrl;
+    const secureUrl = `${this.configService.get('HOST_API')}/usuarios/photo/${fileName}`;
+    return {
+      url: secureUrl,
+      fileName: fileName,
+    };
   }
 
-  async remove(id: string) {
+  async remove(id: string, user: UserActiveInterface) {
+    if (user.rol !== Role.ADMIN && user.id !== id) {
+      throw new ForbiddenException('Solo puedes eliminar tus propios datos');
+    }
     const usuario = await this.findOne(id);
     await this.usuarioRepository.remove(usuario);
     return 'Usuario eliminado';
   }
 
-  async findOneByEmailWhithPassword(correo: string){
+  async findOneByEmailWhithPassword(correo: string) {
     return await this.usuarioRepository.findOne({
-      where: {correo},
-      select: ['id', 'correo','contrasena','rol','nombre']
+      where: { correo },
+      select: ['id', 'correo', 'contrasena', 'rol', 'nombre'],
     });
   }
 
-  async findOneByEmail(correo: string){
-    return await this.usuarioRepository.findOneBy({correo})
+  async findOneByEmail(correo: string) {
+    return await this.usuarioRepository.findOneBy({ correo });
   }
-
-  
 }

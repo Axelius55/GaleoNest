@@ -35,7 +35,8 @@ export class CreateGastoDto {
   // @IsUUID()
   // usuarioID: string;    // referencia
 
-  @ApiProperty({ example: 'b1c2d3e4-f5a6-7890-bcde-fa1234567890 La categoría se se manda si puede cambiar', description: 'ID de la categoría del gasto' })
+  @ApiProperty({ example: 'b1c2d3e4-f5a6-7890-bcde-fa1234567890 La categoría si se manda si puede cambiar', description: 'ID de la categoría del gasto' })
   @IsUUID()
   categoriaID: string;  // referencia
 }
+

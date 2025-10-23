@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Request } from 'express';
-import { Auth } from '../common/decorators/auth.decoratot';
+import { Auth } from '../common/decorators/auth.decorator';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
 import { UserActiveInterface } from 'src/common/interface/user-active.interface';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -70,6 +70,5 @@ export class AuthController {
       timestamp: new Date().toISOString()
     };
   }
-
 
 }
