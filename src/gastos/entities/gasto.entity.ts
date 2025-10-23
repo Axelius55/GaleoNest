@@ -1,5 +1,5 @@
-import { Categoria } from "src/categorias/entities/categoria.entity";
-import { Usuario } from "src/usuarios/entities/usuario.entity";
+import { Categoria } from "../../categorias/entities/categoria.entity";
+import { Usuario } from "../../usuarios/entities/usuario.entity";
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -23,8 +23,8 @@ export class Gasto {
         eager: true,
         onDelete: 'CASCADE',
     })
-    @JoinColumn({name: "UsuarioID"})
-    usuario: Usuario;
+    @JoinColumn({name: "UsuarioID", referencedColumnName: 'id'})
+    user: Usuario;
 
     @ManyToOne(() => Categoria, (categoria) => categoria.gasto, {
         nullable: true,

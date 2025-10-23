@@ -16,10 +16,10 @@ export class Usuario {
     @Column('text', { select: false })
     contrasena: string;
 
-    @OneToMany(() => Gasto, (gasto) => gasto.usuario,)
+    @OneToMany(() => Gasto, (gasto) => gasto.user,)
     gasto: Gasto[];
 
-    @Column({type: 'float'})
+    @Column({type: 'float', nullable: true})
     presupuesto?: number;
 
     @Column({ type: 'enum', default: Role.USER, enum: Role })

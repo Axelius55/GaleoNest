@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,6 +14,10 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { v4 as uuid } from 'uuid';
 import { ConfigService } from '@nestjs/config';
+import { RegisterDto } from 'src/auth/dto/register.dto';
+import { UserActiveInterface } from 'src/common/interface/user-active.interface';
+import { Role } from 'src/common/enums/rol.enum';
+import * as bcryptjs from 'bcryptjs';
 
 @Injectable()
 export class UsuariosService {
@@ -23,9 +28,9 @@ export class UsuariosService {
     private readonly configService: ConfigService
   ) {}
 
-  async create(createUsuarioDto: CreateUsuarioDto) {
+  async create(registerDto: RegisterDto) {
     try {
-      return await this.usuarioRepository.save(createUsuarioDto);
+      return await this.usuarioRepository.save(registerDto);
     } catch (error) {
       this.commonService.handleDBExceptions(error);
     }
@@ -36,15 +41,36 @@ export class UsuariosService {
     return this.usuarioRepository.find();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, user?: UserActiveInterface) {
+    if (user && user.rol !== Role.ADMIN && user.id !== id) {
+      throw new ForbiddenException('Solo puedes ver tus propios datos');
+    }
+
     const usuario = await this.usuarioRepository.findOneBy({ id });
     if (!usuario) {
-      throw new NotFoundException(`No se encontro el ${id}`);
+      throw new NotFoundException(`Usuario con id ${id} no encontrado`);
     }
     return usuario;
   }
 
-  async update(id: string, updateUsuarioDto: UpdateUsuarioDto) {
+  async update(id: string, updateUsuarioDto: UpdateUsuarioDto, user: UserActiveInterface) {
+    if (user.rol !== Role.ADMIN && user.id !== id) {
+      throw new ForbiddenException('Solo puedes actualizar tus propios datos');
+    }
+
+    if (updateUsuarioDto.contrasena) {
+      updateUsuarioDto.contrasena = await bcryptjs.hash(updateUsuarioDto.contrasena, 10);
+    }
+
+    if (updateUsuarioDto.correo) {
+      const existingUser = await this.usuarioRepository.findOne({
+        where: { correo: updateUsuarioDto.correo }
+      });
+      
+      if (existingUser && existingUser.id !== id) {
+        throw new BadRequestException('El correo ya está en uso');
+      }
+    }
 
     const updateUsuario = await this.usuarioRepository.preload({
       id,
@@ -57,8 +83,8 @@ export class UsuariosService {
 
     await this.usuarioRepository.save(updateUsuario);
 
-    return updateUsuario;
-    
+    const { contrasena, ...usuarioSinPassword } = updateUsuario;
+    return usuarioSinPassword;
   }
 
   getStaticProductImage(imageName: string) {
@@ -92,4 +118,17 @@ export class UsuariosService {
     await this.usuarioRepository.remove(usuario);
     return 'Usuario eliminado';
   }
+
+  async findOneByEmailWhithPassword(correo: string){
+    return await this.usuarioRepository.findOne({
+      where: {correo},
+      select: ['id', 'correo','contrasena','rol','nombre']
+    });
+  }
+
+  async findOneByEmail(correo: string){
+    return await this.usuarioRepository.findOneBy({correo})
+  }
+
+  
 }
