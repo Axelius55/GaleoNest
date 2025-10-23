@@ -1,11 +1,16 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from "express";
-import { jwtConstants } from '../constants/jwt.constant';
+import { ConfigService } from '@nestjs/config';
+import { BlacklistService } from '../blacklist.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService){}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly blacklistService: BlacklistService
+  ){}
 
   async canActivate(context: ExecutionContext): Promise<boolean>{
     const request = context.switchToHttp().getRequest();
@@ -15,9 +20,13 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
+    if (this.blacklistService.isBlacklisted(token)) {
+      throw new UnauthorizedException('Token inválido (sesión cerrada)');
+    }
+
     try{
       const payload = await this.jwtService.verifyAsync(token,{
-        secret: jwtConstants.secret,
+        secret: this.configService.get<string>('JWT_SECRET')
       });
       
       request.user = {
@@ -25,8 +34,6 @@ export class AuthGuard implements CanActivate {
         email: payload.correo,
         rol: payload.rol
       };
-
-      console.log('🔐 User asignado:', request.user);
       
     } catch (error) {
       throw new UnauthorizedException();

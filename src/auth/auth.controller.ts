@@ -6,7 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
+  Headers
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -16,6 +16,7 @@ import { Auth } from '../common/decorators/auth.decoratot';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
 import { UserActiveInterface } from 'src/common/interface/user-active.interface';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { BlacklistService } from './blacklist.service';
 
 interface RequestWithUser extends Request {
   usuario: {
@@ -26,7 +27,10 @@ interface RequestWithUser extends Request {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly blacklistService: BlacklistService
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Registro solo con datos necesarios: nombre, contraseña y correo' })
@@ -46,7 +50,26 @@ export class AuthController {
   @ApiBearerAuth()
   @Auth(Role.USER)
   porfile(@ActiveUser() usuario: UserActiveInterface) {
-    console.log(usuario)
     return this.authService.profile(usuario);
   }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cerrar sesión (invalidar token actual)' })
+  @ApiBearerAuth()
+  @Auth(Role.USER)
+  logout(@Headers('authorization') authorization: string) {
+    const token = authorization?.replace('Bearer ', '');
+    
+    if (token) {
+      this.blacklistService.addToBlacklist(token);
+    }
+    
+    return {
+      message: 'Sesión cerrada correctamente. Token invalidado.',
+      timestamp: new Date().toISOString()
+    };
+  }
+
+
 }

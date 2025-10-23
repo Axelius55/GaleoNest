@@ -25,19 +25,23 @@ import { Response } from 'express';
 import { Auth } from '../common/decorators/auth.decoratot';
 import { Role } from '../common/enums/rol.enum';
 import { RegisterDto } from 'src/auth/dto/register.dto';
+import { ActiveUser } from 'src/common/decorators/active-user.decorator';
+import { UserActiveInterface } from 'src/common/interface/user-active.interface';
 
-@Auth(Role.ADMIN)
+
 @ApiBearerAuth()
 @Controller('usuarios')
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
+  @Auth(Role.USER)
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo usuario' })
   create(@Body() registerDto: RegisterDto) {
     return this.usuariosService.create(registerDto);
   }
   //TODO. poner paginacion
+  @Auth(Role.ADMIN)
   @Get()
   @ApiOperation({
     summary: 'Obtener todos los usuarios, llegarán tambien sus gastos',
@@ -46,6 +50,7 @@ export class UsuariosController {
     return this.usuariosService.findAll();
   }
 
+  @Auth(Role.USER)
   @Get('photo/:imageName')
   findOneImage(@Res() res: Response, @Param('imageName') imageName: string) {
     const path = this.usuariosService.getStaticProductImage(imageName);
@@ -53,6 +58,7 @@ export class UsuariosController {
     res.sendFile(path);
   }
 
+  @Auth(Role.USER)
   @Post('photo')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -74,6 +80,7 @@ export class UsuariosController {
     return this.usuariosService.saveFile(file);
   }
 
+  @Auth(Role.USER)
   @Get(':id')
   @ApiOperation({
     summary: 'Obtener un usuario por su ID, llegará tambien con sus gastos',
@@ -82,15 +89,18 @@ export class UsuariosController {
     return this.usuariosService.findOne(id);
   }
 
+  @Auth(Role.USER)
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar un usuario por su ID' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUsuarioDto: UpdateUsuarioDto,
+    @ActiveUser() user: UserActiveInterface
   ) {
-    return this.usuariosService.update(id, updateUsuarioDto);
+    return this.usuariosService.update(id, updateUsuarioDto, user);
   }
 
+  @Auth(Role.USER)
   @Delete(':id')
   @ApiOperation({
     summary: 'Eliminar un usuario por su ID, se eliminarán también sus gastos',

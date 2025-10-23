@@ -5,9 +5,12 @@ import { Type } from 'class-transformer';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Categoria } from './entities/categoria.entity';
 import { CommonModule } from 'src/common/common.module';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Categoria]), CommonModule],
+  imports: [TypeOrmModule.forFeature([Categoria]), CommonModule, JwtModule, ConfigModule, AuthModule],
   controllers: [CategoriasController],
   providers: [CategoriasService],
   exports: [CategoriasService],
