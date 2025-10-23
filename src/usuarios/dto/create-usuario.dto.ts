@@ -29,5 +29,5 @@ export class CreateUsuarioDto {
 
     @IsString({each: true})
     @IsOptional()
-    images?: string[];
+    urlImage?: string;
 }

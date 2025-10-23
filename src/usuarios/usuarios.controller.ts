@@ -20,7 +20,7 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { fileFilter } from './entities/helpers/fileFilter.helper';
+import { fileFilter } from './helpers/fileFilter.helper';
 import { memoryStorage } from 'multer';
 import { Response } from 'express';
 
