@@ -25,4 +25,4 @@ import { BlacklistService } from './blacklist.service';
   providers: [AuthService, AuthGuard, BlacklistService],
   exports: [AuthGuard, BlacklistService],
 })
-export class AuthModule {}
+export class AuthModule { }

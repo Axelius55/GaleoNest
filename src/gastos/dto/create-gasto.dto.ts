@@ -13,7 +13,7 @@ export class CreateGastoDto {
   monto: number;
 
 
-  //validos 
+  //validos
   //"2025-09-27"
   //"2025-09-27T18:00:00Z"
   //"2025-09-27T18:00:00+00:00"

@@ -8,11 +8,11 @@ import { Role } from 'src/common/enums/rol.enum';
 
 @Controller('categorias')
 export class CategoriasController {
-  constructor(private readonly categoriasService: CategoriasService) {}
+  constructor(private readonly categoriasService: CategoriasService) { }
 
   @Post()
   @Auth(Role.ADMIN)
-  @ApiOperation({ summary: 'Crear una nueva categoría' })  
+  @ApiOperation({ summary: 'Crear una nueva categoría' })
   create(@Body() createCategoriaDto: CreateCategoriaDto) {
     return this.categoriasService.create(createCategoriaDto);
   }
