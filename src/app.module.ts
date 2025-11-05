@@ -11,7 +11,8 @@ import { AwsModule } from './aws/aws.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      //envFilePath: '.env',
+      envFilePath: ['.env'],
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
