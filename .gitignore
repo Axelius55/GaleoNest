@@ -4,6 +4,8 @@
 /build
 .env
 /postgres2
+.ebextensions/
+
 # Logs
 logs
 *.log
