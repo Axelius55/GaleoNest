@@ -7,9 +7,10 @@ import { CommonModule } from 'src/common/common.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from 'src/auth/auth.module';
+import { AwsModule } from 'src/aws/aws.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Usuario]), CommonModule, ConfigModule, JwtModule, forwardRef(() => AuthModule)],
+  imports: [TypeOrmModule.forFeature([Usuario]), CommonModule, ConfigModule, AwsModule, JwtModule, forwardRef(() => AuthModule)],
   controllers: [UsuariosController],
   providers: [UsuariosService],
   exports: [UsuariosService],

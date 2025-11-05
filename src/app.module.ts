@@ -5,6 +5,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { GastosModule } from './gastos/gastos.module';
 import { CategoriasModule } from './categorias/categorias.module';
 import { AuthModule } from './auth/auth.module';
+import { AwsModule } from './aws/aws.module';
 
 
 @Module({
@@ -25,6 +26,7 @@ import { AuthModule } from './auth/auth.module';
     GastosModule,
     CategoriasModule,
     AuthModule,
+    AwsModule,
   ],
   controllers: [],
   providers: [],

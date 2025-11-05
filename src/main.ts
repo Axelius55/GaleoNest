@@ -14,6 +14,13 @@ async function bootstrap() {
     }),
   );
 
+    // Configuración de CORS para producción
+  // app.enableCors({
+  //   origin: true,
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  //   credentials: true,
+  // });
+
   const config = new DocumentBuilder()
     .setTitle('GaleoNest')
     .setDescription('The GaleoNest API description')
@@ -23,6 +30,6 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT || 8080, '0.0.0.0');
 }
 bootstrap();

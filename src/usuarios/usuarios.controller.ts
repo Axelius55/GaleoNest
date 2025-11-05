@@ -27,18 +27,15 @@ import { Role } from '../common/enums/rol.enum';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
 import { UserActiveInterface } from 'src/common/interface/user-active.interface';
+import { AwsService } from 'src/aws/aws.service';
 
 @ApiBearerAuth()
 @Controller('usuarios')
 export class UsuariosController {
-  constructor(private readonly usuariosService: UsuariosService) {}
-
-  @Auth(Role.USER)
-  @Post()
-  @ApiOperation({ summary: 'Crear un nuevo usuario' })
-  create(@Body() registerDto: RegisterDto) {
-    return this.usuariosService.create(registerDto);
-  }
+  constructor(
+    private readonly usuariosService: UsuariosService,
+    private readonly awsService: AwsService,
+  ) {}
 
   @Auth(Role.ADMIN)
   @Get()
@@ -49,15 +46,13 @@ export class UsuariosController {
     return this.usuariosService.findAll();
   }
 
-  @Auth(Role.USER)
   @Get('photo/:imageName')
   async findOneImage(
-    @Res() res: Response, 
-    @Param('imageName') imageName: string, 
-    @ActiveUser() user: UserActiveInterface
+    @Param('imageName') imageName: string,
+    @Res() res: Response,
   ) {
-    const path = await this.usuariosService.getStaticUserImage(imageName, user);
-    res.sendFile(path);
+    const url = await this.usuariosService.getStaticUserImage(imageName);
+    return res.redirect(url); // Redirige al S3 directamente
   }
 
   @Auth(Role.USER)
@@ -78,9 +73,9 @@ export class UsuariosController {
       }),
     )
     file: Express.Multer.File,
-    @ActiveUser() user: UserActiveInterface  // ← Agregar esto
+    @ActiveUser() user: UserActiveInterface, // ← Agregar esto
   ) {
-    return this.usuariosService.saveFile(file, user);  // ← Pasar el usuario
+    return this.usuariosService.saveFile(file, user); // ← Pasar el usuario
   }
 
   @Auth(Role.USER)
@@ -111,7 +106,10 @@ export class UsuariosController {
   @ApiOperation({
     summary: 'Eliminar un usuario por su ID, se eliminarán también sus gastos',
   })
-  remove(@Param('id', ParseUUIDPipe) id: string, @ActiveUser() user: UserActiveInterface) {
+  remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
     return this.usuariosService.remove(id, user);
   }
 }

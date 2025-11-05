@@ -18,6 +18,7 @@ import { RegisterDto } from 'src/auth/dto/register.dto';
 import { UserActiveInterface } from 'src/common/interface/user-active.interface';
 import { Role } from 'src/common/enums/rol.enum';
 import * as bcryptjs from 'bcryptjs';
+import { AwsService } from 'src/aws/aws.service';
 
 @Injectable()
 export class UsuariosService {
@@ -26,6 +27,7 @@ export class UsuariosService {
     private readonly usuarioRepository: Repository<Usuario>,
     private readonly commonService: CommonService,
     private readonly configService: ConfigService,
+    private readonly awsService: AwsService,
   ) {}
 
   async create(registerDto: RegisterDto) {
@@ -52,11 +54,8 @@ export class UsuariosService {
       throw new NotFoundException(`Usuario con id ${id} no encontrado`);
     }
     if (usuario.urlImage) {
-      const usuarioConImagen = {
-        ...usuario,
-        urlImageCompleta: `${this.configService.get('HOST_API')}/usuarios/photo/${usuario.urlImage}`,
-      };
-      return usuarioConImagen;
+      const fullUrl = `https://galeonest-s3-cloud.s3.us-east-2.amazonaws.com/usuarios/${usuario.urlImage}`;
+      return { ...usuario, urlImageCompleta: fullUrl };
     }
 
     return usuario;
@@ -103,55 +102,20 @@ export class UsuariosService {
     return usuarioSinPassword;
   }
 
-  async getStaticUserImage(imageName: string, user: UserActiveInterface) {
-    // ADMIN puede ver cualquier imagen
-    if (user.rol === Role.ADMIN) {
-      const path = join(__dirname, '../../static/uploads', imageName);
-      if (!existsSync(path)) {
-        throw new BadRequestException(`No se encontró la imagen: ${imageName}`);
-      }
-      return path;
-    }
-
-    // USER debe verificar que la imagen le pertenece
-    const usuario = await this.usuarioRepository.findOne({
-      where: { id: user.id, urlImage: imageName },
-    });
-
-    if (!usuario) {
-      throw new ForbiddenException('No tienes permiso para ver esta imagen');
-    }
-
-    const path = join(__dirname, '../../static/uploads', imageName);
-    if (!existsSync(path)) {
-      throw new BadRequestException(`No se encontró la imagen: ${imageName}`);
-    }
-
-    return path;
+  async getStaticUserImage(imageName: string) {
+    const url = `https://galeonest-s3-cloud.s3.us-east-2.amazonaws.com/usuarios/${imageName}`;
+    return url;
   }
 
   async saveFile(file: Express.Multer.File, user: UserActiveInterface) {
-    const fs = require('fs');
-    const path = require('path');
+    // Subir el archivo al bucket S3
+    const { url, fileName } = await this.awsService.uploadFile(file);
 
-    const ext = file.mimetype.split('/')[1];
-    const fileName = `${uuid()}.${ext}`;
-    const uploadPath = path.join('./static/uploads', fileName);
+    // Actualizar la URL de imagen en la base de datos
+    await this.usuarioRepository.update(user.id, { urlImage: fileName });
 
-    // Escribe el archivo
-    fs.writeFileSync(uploadPath, file.buffer);
-
-    // Actualizar el campo urlImage del usuario
-    await this.usuarioRepository.update(user.id, {
-      urlImage: fileName,
-    });
-
-    // Retorna la URL segura
-    const secureUrl = `${this.configService.get('HOST_API')}/usuarios/photo/${fileName}`;
-    return {
-      url: secureUrl,
-      fileName: fileName,
-    };
+    // Retornar la URL pública
+    return { url, fileName };
   }
 
   async remove(id: string, user: UserActiveInterface) {
@@ -174,3 +138,19 @@ export class UsuariosService {
     return await this.usuarioRepository.findOneBy({ correo });
   }
 }
+
+// async saveFile(file: Express.Multer.File, user: UserActiveInterface) {
+//   const fs = require('fs');
+//   const path = require('path');
+
+//   const ext = file.mimetype.split('/')[1];
+//   const fileName = `${uuid()}.${ext}`;
+//   const uploadPath = path.join('./static/uploads', fileName);
+
+//   // Escribe el archivo
+//   fs.writeFileSync(uploadPath, file.buffer);
+
+//   // Actualizar el campo urlImage del usuario
+//   await this.usuarioRepository.update(user.id, {
+//     urlImage: fileName,
+//   });
