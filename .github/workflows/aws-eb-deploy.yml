@@ -65,8 +65,8 @@ jobs:
           with:
             aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
             aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            application_name: 'nestJS-monoback'
-            environment_name: 'NestJS-monoback-env'
+            application_name: 'Nest-gaelo-eb'
+            environment_name: 'Nest-gaelo-eb-env'
             region: us-east-1 # O la región donde está Elastic Beanstalk
             version_label: "deploy-${{ github.run_id }}"
             deployment_package: nodejs-app-build.zip
