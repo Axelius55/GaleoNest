@@ -14,12 +14,12 @@ async function bootstrap() {
     }),
   );
 
-    // Configuración de CORS para producción
-  // app.enableCors({
-  //   origin: true,
-  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  //   credentials: true,
-  // });
+  // Configuración de CORS para producción
+  app.enableCors({
+     origin: 'http://localhost:5173',
+     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+     credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('GaleoNest')
