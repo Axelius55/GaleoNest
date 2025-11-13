@@ -137,6 +137,28 @@ export class UsuariosService {
   async findOneByEmail(correo: string) {
     return await this.usuarioRepository.findOneBy({ correo });
   }
+
+  async actualizarPresupuesto(
+    id: string,
+    presupuesto: number,
+    user: UserActiveInterface,
+  ) {
+    if (user.rol !== Role.ADMIN && user.id !== id) {
+      throw new ForbiddenException(
+        'Solo puedes actualizar tu propio presupuesto',
+      );
+    }
+
+    const usuario = await this.usuarioRepository.findOneBy({ id });
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    usuario.presupuesto = presupuesto;
+    await this.usuarioRepository.save(usuario);
+
+    return { message: 'Presupuesto actualizado correctamente', presupuesto };
+  }
 }
 
 // async saveFile(file: Express.Multer.File, user: UserActiveInterface) {
