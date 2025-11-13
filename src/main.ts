@@ -22,6 +22,7 @@ async function bootstrap() {
       'http://localhost:5173',                         // opcional, para desarrollo local
      ],
      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+     allowedHeaders: ['Content-Type', 'Authorization'],
      credentials: true,
   });
 
