@@ -16,7 +16,10 @@ async function bootstrap() {
 
   // Configuración de CORS para producción
   app.enableCors({
-     origin: 'http://localhost:5173',
+     origin: [
+      'https://staging.d2yollvyu3bdyy.amplifyapp.com',
+      'https://master.df9fo2w7epab1.amplifyapp.com'
+     ],
      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
      credentials: true,
   });
