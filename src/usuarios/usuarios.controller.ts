@@ -108,4 +108,17 @@ export class UsuariosController {
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.usuariosService.remove(id);
   }
+
+  @Patch(':id/presupuesto')
+@Auth(Role.USER)
+@ApiBearerAuth()
+async actualizarPresupuesto(
+  @Param('id') id: string,
+  @Body('presupuesto') presupuesto: number,
+  @ActiveUser() user: UserActiveInterface
+) {
+  return this.usuariosService.actualizarPresupuesto(id, presupuesto, user);
+}
+
+
 }

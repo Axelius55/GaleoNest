@@ -40,30 +40,38 @@ export class AuthService {
   }
 
   async login({ correo, contrasena }: LoginDto) {
-    const usuario = await this.usuariosService.findOneByEmailWhithPassword(correo);
+  const usuario = await this.usuariosService.findOneByEmailWhithPassword(correo);
 
-    if (!usuario) {
-      throw new UnauthorizedException('Correo Incorrecto');
-    }
-
-    const isPasswordValid = await bcryptjs.compare(
-      contrasena,
-      usuario.contrasena,
-    );
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Contasena incorrecta');
-    }
-
-    const payload = { correo: usuario.correo, rol: usuario.rol, sub: usuario.id};
-
-    const token = await this.jwtService.signAsync(payload);
-
-    return {
-      token,
-      correo,
-    };
+  if (!usuario) {
+    throw new UnauthorizedException('Correo incorrecto');
   }
+
+  const isPasswordValid = await bcryptjs.compare(
+    contrasena,
+    usuario.contrasena,
+  );
+
+  if (!isPasswordValid) {
+    throw new UnauthorizedException('Contraseña incorrecta');
+  }
+
+  // Payload que se guardará en el token JWT
+  const payload = { correo: usuario.correo, rol: usuario.rol, sub: usuario.id };
+  const token = await this.jwtService.signAsync(payload);
+
+  // ✅ Devuelve también los datos del usuario
+  return {
+    token,
+    usuario: {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      correo: usuario.correo,
+      rol: usuario.rol,
+      presupuesto: usuario.presupuesto, // opcional, por si ya lo quieres mostrar
+    },
+  };
+}
+
 
   async profile({email, rol}: {email: string, rol: string}){
 
